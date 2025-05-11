@@ -1,9 +1,25 @@
 {
   "name": "fetchless",
-  "version": "1.0.2",
+  "version": "1.1.2",
   "description": "A lightweight and performant JavaScript library for HTTP request caching",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "require": "./cjs-wrapper.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bufferdev/fetchless.git"
+  },
+  "homepage": "https://github.com/bufferdev/fetchless#readme",
+  "bugs": {
+    "url": "https://github.com/bufferdev/fetchless/issues"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",

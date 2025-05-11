@@ -108,7 +108,8 @@ export class Fetchless implements FetchlessClient {
     if (cached && !this.isExpired(cached)) {
       // Cache hit
       this.stats.hits++;
-      return cached as AxiosResponse<T>;
+      // Retourner la propriété response de l'entrée du cache, pas l'entrée entière
+      return cached.response as AxiosResponse<T>;
     }
     
     // Cache miss, faire la requête réseau
@@ -140,7 +141,7 @@ export class Fetchless implements FetchlessClient {
       if (cached) {
         // Cache hit (même si expiré, on l'utilise comme fallback)
         this.stats.hits++;
-        return cached as AxiosResponse<T>;
+        return cached.response as AxiosResponse<T>;
       }
       
       // Aucune donnée en cache, propager l'erreur
@@ -166,7 +167,7 @@ export class Fetchless implements FetchlessClient {
       }
       
       // Renvoyer les données en cache immédiatement
-      return cached as AxiosResponse<T>;
+      return cached.response as AxiosResponse<T>;
     }
     
     // Cache miss, faire la requête réseau
