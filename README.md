@@ -4,11 +4,21 @@ A lightweight and performant JavaScript library for HTTP request caching.
 
 ## Features
 
-- **Performant**: Automatic caching of requests for faster applications
-- **Configurable**: Multiple caching strategies (cache-first, network-first, stale-while-revalidate)
-- **Statistics**: Track cache performance for easy optimization
-- **Transparent**: Uses the same API as standard HTTP clients
-- **Extensible**: Easy to integrate into existing projects
+- **Efficient Caching**: Cache HTTP requests to reduce network traffic and improve performance
+- **Multiple Cache Strategies**: Choose between 'cache-first', 'network-first', and 'stale-while-revalidate'
+- **TypeScript Support**: Full TypeScript support with typings included
+- **Lightweight**: Small footprint with minimal dependencies
+- **Easy Integration**: Simple API that works with any JavaScript project
+
+## Advanced Features
+
+- **Prefetching**: Preload resources in the background
+- **Request Deduplication**: Automatically combine identical concurrent requests
+- **Interceptors**: Transform requests and responses with custom middleware
+- **Retry with Backoff**: Automatically retry failed requests with exponential backoff
+- **Persistent Cache**: Store cache in localStorage for persistence between sessions
+- **Abortable Requests**: Cancel requests when they're no longer needed
+- **Hooks for React**: Easily integrate with React applications
 
 ## Installation
 
@@ -16,86 +26,147 @@ A lightweight and performant JavaScript library for HTTP request caching.
 npm install fetchless
 ```
 
-## Usage
+## Basic Usage
 
-### Basic Example
+```javascript
+import { get } from 'fetchless';
 
-```typescript
-import { Fetchless } from 'fetchless';
+// Simple GET request that will be cached
+get('https://api.example.com/data')
+  .then(response => {
+    console.log(response.data);
+  });
 
-// Create an instance with default options
-const client = Fetchless.createClient();
-
-// Make a request (automatically cached)
-const data = await client.get('https://api.example.com/data');
+// Second request for the same URL will be served from cache
+get('https://api.example.com/data')
+  .then(response => {
+    console.log(response.data); // Instant response from cache
+  });
 ```
 
-### Configuration
+## Advanced Usage
 
-```typescript
-import { Fetchless } from 'fetchless';
+### Creating a Custom Client
 
-// Create an instance with custom options
+```javascript
+import { Fetchless, createAdvancedClient } from 'fetchless';
+
+// Standard client with custom configuration
 const client = Fetchless.createClient({
-  strategy: 'network-first',  // 'cache-first', 'network-first', 'stale-while-revalidate'
-  maxAge: 60 * 1000,          // 1 minute (in milliseconds)
-  maxSize: 100                // Maximum number of entries in the cache
+  strategy: 'cache-first', // or 'network-first', 'stale-while-revalidate'
+  maxAge: 60000, // Cache lifetime in milliseconds (1 minute)
+  maxSize: 100 // Maximum number of entries in the cache
+});
+
+// Advanced client with additional features
+const advancedClient = createAdvancedClient({
+  persistCache: true,
+  localStorage: window.localStorage,
+  dedupeRequests: true,
+  enableLogs: true,
+  retryOptions: {
+    maxRetries: 3,
+    backoffFactor: 300, // Milliseconds
+    retryStatusCodes: [408, 429, 500, 502, 503, 504]
+  }
 });
 ```
 
-### Cache Strategies
+### Using Interceptors
 
-#### Cache First
+```javascript
+import { createAdvancedClient } from 'fetchless';
 
-Tries to serve from the cache first, only makes a network request if the cache is empty or expired.
-```typescript
-const client = Fetchless.createClient({ strategy: 'cache-first' });
+const client = createAdvancedClient();
+
+// Add request interceptor
+client.addRequestInterceptor((url, config) => {
+  // Add authentication token to all requests
+  return [url, { 
+    ...config, 
+    headers: { 
+      ...config?.headers, 
+      'Authorization': `Bearer ${getToken()}` 
+    } 
+  }];
+});
+
+// Add response interceptor
+client.addResponseInterceptor((response) => {
+  // Transform response data
+  return {
+    ...response,
+    data: transformData(response.data)
+  };
+});
 ```
 
-#### Network First
+### Prefetching Resources
 
-Tries the network request first, uses the cache only if the network fails.
-```typescript
-const client = Fetchless.createClient({ strategy: 'network-first' });
+```javascript
+import { prefetch } from 'fetchless';
+
+// Preload data that might be needed soon
+prefetch('https://api.example.com/future-data');
+
+// Later when you need it, it will be in the cache
+get('https://api.example.com/future-data')
+  .then(response => {
+    console.log(response.data); // Instant response
+  });
 ```
 
-#### Stale While Revalidate
+### Cancellable Requests
 
-Serves cached data immediately (even if stale) while refreshing the cache in the background.
-```typescript
-const client = Fetchless.createClient({ strategy: 'stale-while-revalidate' });
+```javascript
+import { abortableGet } from 'fetchless';
+
+// Get an abortable request
+const { promise, abort } = abortableGet('https://api.example.com/large-data');
+
+// Use the promise as normal
+promise.then(response => {
+  console.log(response.data);
+});
+
+// Later if you need to cancel the request
+abort();
 ```
 
-### Cache Management
+### React Integration
 
-```typescript
-// Clear the cache
-client.clearCache();
+```jsx
+import { useFetchless } from 'fetchless';
+import React from 'react';
+
+function UserProfile({ userId }) {
+  const { data, loading, error } = useFetchless(`https://api.example.com/users/${userId}`);
+  
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.email}</p>
+    </div>
+  );
+}
+```
+
+## Cache Statistics
+
+```javascript
+import { defaultClient } from 'fetchless';
 
 // Get cache statistics
-const stats = client.getStats();
-console.log(`Hits: ${stats.hits}, Misses: ${stats.misses}, Ratio: ${stats.ratio}`);
+const stats = defaultClient.getStats();
+console.log(stats);
+// { hits: 5, misses: 2, ratio: 0.71, size: 7 }
+
+// Clear the cache if needed
+defaultClient.clearCache();
 ```
-
-## API
-
-### `Fetchless.createClient(options)`
-
-Creates an HTTP client with caching.
-
-Options:
-- `strategy`: Caching strategy to use (default: 'cache-first')
-- `maxAge`: Cache lifetime in milliseconds (default: 5 minutes)
-- `maxSize`: Maximum number of entries in the cache (default: 100)
-
-### Client Methods
-
-- `get(url, config)`: Makes a GET request with caching
-- `post(url, data, config)`: Makes a POST request (not cached)
-- `put(url, data, config)`: Makes a PUT request (not cached)
-- `delete(url, config)`: Makes a DELETE request (not cached)
-- `clearCache()`: Clears the cache
-- `getStats()`: Returns cache usage statistics
 
 ## License
 
