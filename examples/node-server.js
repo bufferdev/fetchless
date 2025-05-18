@@ -1,7 +1,7 @@
 /**
- * Exemple d'intégration de SmartCache avec un serveur Node.js
+ * Example d'intégration de SmartCache avec un serveur Node.js
  * 
- * Cet exemple montre comment utiliser SmartCache dans un serveur Node.js
+ * Cet Example montre comment utiliser SmartCache dans un serveur Node.js
  * pour mettre en cache les appels à des API externes et améliorer les performances.
  */
 
@@ -59,7 +59,7 @@ async function main() {
   // Créer une application Express
   const app = new ExpressApp();
 
-  // Middleware pour exposer les statistiques du cache
+  // Middleware pour exposer les statistics du cache
   app.get('/cache-stats', async (req, res) => {
     const stats = apiClient.getStats();
     res.status(200).json({
@@ -70,13 +70,13 @@ async function main() {
     });
   });
 
-  // Route pour récupérer des utilisateurs
+  // Route pour retrieve des users
   app.get('/api/users', async (req, res) => {
     try {
       // Utiliser SmartCache pour appeler l'API externe
       const response = await apiClient.get('https://jsonplaceholder.typicode.com/users');
       
-      // Enrichir les données avant de les renvoyer
+      // Enrichir les data avant de les renvoyer
       const enrichedUsers = response.data.map(user => ({
         ...user,
         profileUrl: `/api/users/${user.id}`
@@ -89,18 +89,18 @@ async function main() {
     }
   });
 
-  // Route pour récupérer un utilisateur spécifique
+  // Route pour retrieve un user spécifique
   app.get('/api/users/:id', async (req, res) => {
     const userId = req.params.id;
     
     try {
-      // Récupérer les détails de l'utilisateur
+      // retrieve les détails de l'user
       const userResponse = await apiClient.get(`https://jsonplaceholder.typicode.com/users/${userId}`);
       
-      // Récupérer les posts de l'utilisateur
+      // retrieve les posts de l'user
       const postsResponse = await apiClient.get(`https://jsonplaceholder.typicode.com/users/${userId}/posts`);
       
-      // Combiner les données
+      // Combiner les data
       const userData = {
         ...userResponse.data,
         posts: postsResponse.data
@@ -108,8 +108,8 @@ async function main() {
       
       res.status(200).json(userData);
     } catch (error) {
-      console.error(`Erreur lors de la récupération de l'utilisateur ${userId}:`, error);
-      res.status(500).json({ error: `Erreur lors de la récupération de l'utilisateur ${userId}` });
+      console.error(`Erreur lors de la récupération de l'user ${userId}:`, error);
+      res.status(500).json({ error: `Erreur lors de la récupération de l'user ${userId}` });
     }
   });
 
@@ -119,23 +119,23 @@ async function main() {
     res.status(200).json({ message: 'Cache vidé avec succès' });
   });
 
-  // Simuler des requêtes au serveur
+  // Simuler des requests au serveur
   console.log('\n📡 Démarrage du serveur Node.js avec SmartCache');
   console.log('------------------------------------------------');
 
-  // Première requête - récupérer tous les utilisateurs
-  console.log('\n1. Première requête - GET /api/users:');
+  // Première request - retrieve tous les users
+  console.log('\n1. Première request - GET /api/users:');
   await app.simulateRequest('/api/users', { params: {} });
 
-  // Deuxième requête - récupérer un utilisateur spécifique
-  console.log('\n2. Deuxième requête - GET /api/users/1:');
+  // Deuxième request - retrieve un user spécifique
+  console.log('\n2. Deuxième request - GET /api/users/1:');
   await app.simulateRequest('/api/users/:id', { params: { id: '1' } });
 
-  // Troisième requête - récupérer la liste des utilisateurs à nouveau (devrait être en cache)
-  console.log('\n3. Troisième requête - GET /api/users (devrait être en cache):');
+  // Troisième request - retrieve la liste des users à nouveau (devrait être en cache)
+  console.log('\n3. Troisième request - GET /api/users (devrait être en cache):');
   await app.simulateRequest('/api/users', { params: {} });
 
-  // Afficher les statistiques du cache
+  // display les statistics du cache
   console.log('\n4. Statistiques du cache - GET /cache-stats:');
   await app.simulateRequest('/cache-stats', { params: {} });
 
@@ -143,19 +143,19 @@ async function main() {
   console.log('\n5. Vider le cache - GET /api/clear-cache:');
   await app.simulateRequest('/api/clear-cache', { params: {} });
 
-  // Récupérer les utilisateurs à nouveau (doit récupérer du réseau)
+  // retrieve les users à nouveau (doit retrieve du réseau)
   console.log('\n6. Après avoir vidé le cache - GET /api/users:');
   await app.simulateRequest('/api/users', { params: {} });
 
-  // Statistiques finales
+  // statistics finales
   console.log('\n7. Statistiques finales du cache:');
   await app.simulateRequest('/cache-stats', { params: {} });
 }
 
-// Pour exécuter l'exemple, simulons l'existence de SmartCache
+// Pour exécuter l'Example, simulons l'existence de SmartCache
 const SmartCache = {
   createClient: (options) => {
-    console.log(`SmartCache créé avec la stratégie: ${options.strategy}`);
+    console.log(`SmartCache créé avec la strategy: ${options.strategy}`);
     
     // Simuler un client avec un cache
     let cache = {};
@@ -172,14 +172,14 @@ const SmartCache = {
           return cache[url];
         }
         
-        // Sinon, faire une "vraie" requête
+        // Sinon, faire une "vraie" request
         console.log(`⚡ Cache miss pour: ${url}`);
         stats.misses++;
         
-        // Simuler une requête réseau
+        // Simuler une request réseau
         console.log(`Connexion au réseau pour: ${url}`);
         
-        // Créer une réponse fictive en fonction de l'URL
+        // Créer une response fictive en fonction de l'URL
         let response;
         if (url === 'https://jsonplaceholder.typicode.com/users') {
           response = {

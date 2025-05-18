@@ -1,7 +1,7 @@
 /**
- * Exemple d'intégration de SmartCache dans une application web
+ * Example d'intégration de SmartCache dans une application web
  * 
- * Cet exemple montre comment intégrer SmartCache dans une application web
+ * Cet Example montre comment intégrer SmartCache dans une application web
  * pour optimiser les appels API.
  */
 
@@ -14,7 +14,7 @@
 // Service d'API pour une application web
 class ApiService {
   constructor() {
-    // Créer un client SmartCache avec une stratégie appropriée pour les applications web
+    // Créer un client SmartCache avec une strategy appropriée pour les applications web
     this.client = SmartCache.createClient({
       strategy: 'stale-while-revalidate',
       maxAge: 2 * 60 * 1000, // 2 minutes
@@ -27,7 +27,7 @@ class ApiService {
     this.requests = 0;
   }
   
-  // Récupérer la liste des utilisateurs
+  // retrieve la liste des users
   async getUsers() {
     this.requests++;
     
@@ -39,7 +39,7 @@ class ApiService {
       this.cacheHits = stats.hits;
       this.cacheMisses = stats.misses;
       
-      // Mettre à jour l'UI avec les statistiques
+      // Mettre à jour l'UI avec les statistics
       this.updateStatsUI();
       
       return response.data;
@@ -49,7 +49,7 @@ class ApiService {
     }
   }
   
-  // Récupérer les détails d'un utilisateur
+  // retrieve les détails d'un user
   async getUserDetails(userId) {
     this.requests++;
     
@@ -61,17 +61,17 @@ class ApiService {
       this.cacheHits = stats.hits;
       this.cacheMisses = stats.misses;
       
-      // Mettre à jour l'UI avec les statistiques
+      // Mettre à jour l'UI avec les statistics
       this.updateStatsUI();
       
       return response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des détails de l'utilisateur ${userId}:`, error);
+      console.error(`Erreur lors de la récupération des détails de l'user ${userId}:`, error);
       throw error;
     }
   }
   
-  // Récupérer les posts d'un utilisateur
+  // retrieve les posts d'un user
   async getUserPosts(userId) {
     this.requests++;
     
@@ -83,12 +83,12 @@ class ApiService {
       this.cacheHits = stats.hits;
       this.cacheMisses = stats.misses;
       
-      // Mettre à jour l'UI avec les statistiques
+      // Mettre à jour l'UI avec les statistics
       this.updateStatsUI();
       
       return response.data;
     } catch (error) {
-      console.error(`Erreur lors de la récupération des posts de l'utilisateur ${userId}:`, error);
+      console.error(`Erreur lors de la récupération des posts de l'user ${userId}:`, error);
       throw error;
     }
   }
@@ -99,7 +99,7 @@ class ApiService {
     this.updateStatsUI();
   }
   
-  // Mettre à jour l'interface utilisateur avec les statistiques
+  // Mettre à jour l'interface user avec les statistics
   updateStatsUI() {
     // Dans une vraie application, on mettrait à jour des éléments DOM
     const stats = this.client.getStats();
@@ -111,7 +111,7 @@ class ApiService {
     console.log(`- Ratio de hit: ${(stats.ratio * 100).toFixed(1)}%`);
     console.log(`- Taille du cache: ${stats.size} entrées`);
     
-    // Si on avait une interface utilisateur:
+    // Si on avait une interface user:
     // document.getElementById('total-requests').textContent = this.requests;
     // document.getElementById('cache-hits').textContent = stats.hits;
     // document.getElementById('cache-misses').textContent = stats.misses;
@@ -121,7 +121,7 @@ class ApiService {
 }
 
 /**
- * Exemple d'utilisation dans une application web
+ * Example d'Usage dans une application web
  */
 async function simulateWebApp() {
   // Créer le service d'API
@@ -130,49 +130,49 @@ async function simulateWebApp() {
   console.log('Application web avec SmartCache');
   console.log('-------------------------------');
   
-  // Simuler des interactions utilisateur
+  // Simuler des interactions user
   
-  // 1. Chargement initial de la page - récupérer tous les utilisateurs
+  // 1. Chargement initial de la page - retrieve tous les users
   console.log('\n1. Chargement initial - récupération des utilisateurs:');
   const users = await api.getUsers();
   console.log(`   ${users.length} utilisateurs récupérés`);
   
-  // 2. L'utilisateur clique sur un utilisateur - récupérer les détails
-  console.log('\n2. Clic sur l\'utilisateur 1 - récupération des détails:');
+  // 2. L'user clique sur un user - retrieve les détails
+  console.log('\n2. Clic sur l\'user 1 - récupération des détails:');
   const user1 = await api.getUserDetails(1);
   console.log(`   Détails de ${user1.name} récupérés`);
   
-  // 3. L'utilisateur clique sur "Voir les posts"
+  // 3. L'user clique sur "Voir les posts"
   console.log('\n3. Clic sur "Voir les posts" - récupération des posts:');
   const user1Posts = await api.getUserPosts(1);
   console.log(`   ${user1Posts.length} posts récupérés`);
   
-  // 4. L'utilisateur revient à la liste et clique sur un autre utilisateur
-  console.log('\n4. Retour à la liste et clic sur l\'utilisateur 2:');
+  // 4. L'user revient à la liste et clique sur un autre user
+  console.log('\n4. Retour à la liste et clic sur l\'user 2:');
   const user2 = await api.getUserDetails(2);
   console.log(`   Détails de ${user2.name} récupérés`);
   
-  // 5. L'utilisateur revient à la liste principale - données servies depuis le cache
+  // 5. L'user revient à la liste principale - data servies depuis le cache
   console.log('\n5. Retour à la liste principale - devrait venir du cache:');
   await api.getUsers();
   console.log('   Liste des utilisateurs récupérée depuis le cache');
   
-  // 6. L'utilisateur retourne voir le premier utilisateur - données servies depuis le cache
-  console.log('\n6. Retour au profil de l\'utilisateur 1 - devrait venir du cache:');
+  // 6. L'user retourne voir le premier user - data servies depuis le cache
+  console.log('\n6. Retour au profil de l\'user 1 - devrait venir du cache:');
   await api.getUserDetails(1);
-  console.log('   Détails utilisateur récupérés depuis le cache');
+  console.log('   Détails user récupérés depuis le cache');
   
-  // 7. L'utilisateur clique sur "Actualiser" - force un rechargement des données
+  // 7. L'user clique sur "Actualiser" - force un rechargement des data
   console.log('\n7. Clic sur "Actualiser" - simulation en vidant le cache:');
   api.clearCache();
   console.log('   Cache vidé');
   
-  // 8. Les données sont rechargées depuis le réseau
+  // 8. Les data sont rechargées depuis le réseau
   console.log('\n8. Données rechargées depuis le réseau:');
   await api.getUsers();
   console.log('   Liste des utilisateurs rechargée');
   
-  // Afficher les statistiques finales
+  // display les statistics finales
   console.log('\nStatistiques finales:');
   const finalStats = api.client.getStats();
   console.log(`- Requêtes totales: ${api.requests}`);
@@ -186,5 +186,5 @@ async function simulateWebApp() {
 //   simulateWebApp().catch(console.error);
 // });
 
-// Pour l'exemple, considérez que cette fonction est appelée manuellement
+// Pour l'Example, considérez que cette fonction est appelée manuellement
 // simulateWebApp().catch(console.error); 
