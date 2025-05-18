@@ -2,12 +2,6 @@
 
 A lightweight and performant JavaScript library for HTTP request caching.
 
-<div align="center">
-  <img src="https://img.shields.io/npm/v/fetchless.svg" alt="npm version">
-  <img src="https://img.shields.io/npm/dm/fetchless.svg" alt="downloads">
-  <img src="https://img.shields.io/github/license/bufferdev/fetchless.svg" alt="license">
-</div>
-
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -20,17 +14,12 @@ A lightweight and performant JavaScript library for HTTP request caching.
   - [Using Interceptors](#using-interceptors)
   - [Prefetching Resources](#prefetching-resources)
   - [Cancellable Requests](#cancellable-requests)
-  - [React Integration](#react-integration)
-  - [Cache Statistics and Management](#cache-statistics-and-management)
 - [New Features (v1.3.0)](#new-features-v130)
   - [Time Travel Fetch](#time-travel-fetch)
   - [Freeze Mode](#freeze-mode)
   - [Auto-Fixer](#auto-fixer)
-  - [Fetch Intelligence Panel](#fetch-intelligence-panel)
 - [API Reference](#api-reference)
 - [Configuration Options](#configuration-options)
-- [Browser Compatibility](#browser-compatibility)
-- [Performance Considerations](#performance-considerations)
 - [Debugging](#debugging)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -54,31 +43,19 @@ Fetchless is a powerful HTTP request caching library designed to optimize networ
 - **Request Deduplication**: Automatically combine identical concurrent requests
 - **Interceptors**: Transform requests and responses with custom middleware
 - **Retry with Backoff**: Automatically retry failed requests with exponential backoff
-- **Persistent Cache**: Store cache in localStorage for persistence between sessions
+- **Persistent Cache**: Store cache for persistence between sessions
 - **Abortable Requests**: Cancel requests when they're no longer needed
-- **Hooks for React**: Easily integrate with React applications
 
 ### New Features (v1.3.0)
 - **Time Travel Fetch**: Access historical data snapshots by specifying a timestamp
 - **Freeze Mode**: Freeze data updates while users are viewing the interface
 - **Auto-Fixer**: Automatically fix common API errors with fallback data
-- **Fetch Intelligence Panel**: Analyze request patterns and detect inefficient fetching
 
 ## Installation
 
 ### NPM
 ```bash
 npm install fetchless
-```
-
-### Yarn
-```bash
-yarn add fetchless
-```
-
-### CDN
-```html
-<script src="https://unpkg.com/fetchless@1.3.0/dist/fetchless.min.js"></script>
 ```
 
 ## Basic Usage
@@ -154,7 +131,6 @@ const client = Fetchless.createClient({
   maxAge: 60000, // Cache lifetime in milliseconds (1 minute)
   maxSize: 100, // Maximum number of entries in the cache
   enableTimeTravel: true, // Enable Time Travel feature
-  enableIntelligencePanel: true // Enable Intelligence Panel
 });
 
 // Using the custom client
@@ -164,7 +140,6 @@ client.get('https://api.example.com/data')
 // Advanced client with additional features
 const advancedClient = createAdvancedClient({
   persistCache: true,
-  localStorage: window.localStorage,
   dedupeRequests: true,
   enableLogs: true,
   retryOptions: {
@@ -292,72 +267,6 @@ abort();
 const { promise: timeoutPromise, abort: timeoutAbort } = abortableGet('https://api.example.com/data', {
   timeout: 5000 // Automatically abort after 5 seconds
 });
-```
-
-### React Integration
-
-```js
-import { useFetchless } from 'fetchless';
-import React from 'react';
-
-function UserProfile({ userId }) {
-  const { data, loading, error, refetch } = useFetchless(`https://api.example.com/users/${userId}`);
-  
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  
-  return (
-    <div>
-      <h1>{data.name}</h1>
-      <p>{data.email}</p>
-      <button onClick={refetch}>Refresh</button>
-    </div>
-  );
-}
-
-// With options
-function ProductList() {
-  const { data, loading } = useFetchless('https://api.example.com/products', {
-    strategy: 'cache-first',
-    maxAge: 300000, // 5 minutes
-    initialData: [], // Default data while loading
-    deps: [], // Dependencies array, similar to useEffect
-    onSuccess: (data) => console.log('Data loaded:', data),
-    onError: (error) => console.error('Failed to load:', error)
-  });
-  
-  return (
-    <ul>
-      {loading ? 'Loading...' : data.map(product => (
-        <li key={product.id}>{product.name}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-### Cache Statistics and Management
-
-```js
-import { defaultClient } from 'fetchless';
-
-// Get cache statistics
-const stats = defaultClient.getStats();
-console.log(stats);
-// { hits: 5, misses: 2, ratio: 0.71, size: 7 }
-
-// Clear the cache
-defaultClient.clearCache();
-
-// Clear specific URL
-defaultClient.clearCache('https://api.example.com/data');
-
-// Clear cache with pattern
-defaultClient.clearCache(/api\.example\.com\/users.*/);
-
-// Get cache entries
-const entries = defaultClient.getCacheEntries();
-console.log(entries);
 ```
 
 ## New Features (v1.3.0)
@@ -488,54 +397,6 @@ const options = {
 const response = await client.get('https://api.example.com/users/123', options);
 ```
 
-### Fetch Intelligence Panel
-
-Analyze request patterns and detect inefficient fetching.
-
-```js
-import { Fetchless } from 'fetchless';
-
-// Create client with Intelligence Panel enabled
-const client = Fetchless.createClient({
-  enableIntelligencePanel: true
-});
-
-// Make several requests to simulate real usage
-await client.get('https://api.example.com/users?page=1');
-await client.get('https://api.example.com/users?page=1'); // Duplicate
-await client.get('https://api.example.com/users?page=2');
-await client.get('https://api.example.com/users?page=1'); // Duplicate
-await client.get('https://api.example.com/products?category=1');
-await client.get('https://api.example.com/products?category=2');
-
-// Get intelligence and analyze patterns
-const intelligence = client.getIntelligence();
-
-// View request history
-const history = intelligence.getRequestHistory();
-console.log('Request history count:', history.length);
-
-// Detect duplicates
-const duplicates = intelligence.detectDuplicates();
-console.log('Detected duplicate requests:', duplicates);
-
-// Get optimization suggestions
-const suggestions = intelligence.suggestOptimizations();
-console.log('Optimization suggestions:', suggestions);
-
-// Example suggestion output:
-// [
-//   {
-//     suggestion: "You can group 3 requests to https://api.example.com/users",
-//     urls: ["https://api.example.com/users?page=1", "https://api.example.com/users?page=2"]
-//   },
-//   {
-//     suggestion: "This URL is called 3 times, consider increasing its cache duration",
-//     urls: ["https://api.example.com/users?page=1"]
-//   }
-// ]
-```
-
 ## API Reference
 
 ### Fetchless Class
@@ -548,12 +409,9 @@ console.log('Optimization suggestions:', suggestions);
 | `post(url, data?, config?)` | Performs a POST request |
 | `put(url, data?, config?)` | Performs a PUT request |
 | `delete(url, config?)` | Performs a DELETE request |
-| `getStats()` | Returns cache statistics |
-| `clearCache(pattern?)` | Clears the cache, optionally by pattern |
 | `freeze(url)` | Freezes data for specific URL |
 | `unfreeze(url)` | Unfreezes data for specific URL |
 | `unfreezeAll()` | Unfreezes all frozen URLs |
-| `getIntelligence()` | Returns the intelligence panel |
 
 #### Static Methods
 
@@ -580,15 +438,6 @@ const config = {
   // Duration for which to keep history in milliseconds
   historyRetention: 7 * 24 * 60 * 60 * 1000, // 7 days
   
-  // Enable Intelligence Panel
-  enableIntelligencePanel: false,
-  
-  // Persist cache to localStorage
-  persistCache: false,
-  
-  // Storage to use for persistence
-  storage: window.localStorage,
-  
   // Automatic request deduplication
   dedupeRequests: true,
   
@@ -604,27 +453,6 @@ const config = {
 };
 ```
 
-## Browser Compatibility
-
-Fetchless works in all modern browsers and environments that support ES6:
-
-- Chrome 51+
-- Firefox 54+
-- Safari 10+
-- Edge 15+
-- Opera 38+
-- Node.js 10+
-
-For older browsers, use a transpiler like Babel and appropriate polyfills.
-
-## Performance Considerations
-
-- **Cache Size**: Configure `maxSize` based on your application's memory constraints
-- **Cache Duration**: Adjust `maxAge` for different types of data
-- **Time Travel**: Enabling this feature increases memory usage
-- **Prefetching**: Use sparingly for critical resources only
-- **Request Deduplication**: Can significantly reduce network traffic in complex UIs
-
 ## Debugging
 
 To enable debug logs:
@@ -632,14 +460,6 @@ To enable debug logs:
 ```js
 const client = Fetchless.createClient({
   enableLogs: true
-});
-```
-
-You can also set specific log levels:
-
-```js
-const client = Fetchless.createClient({
-  logLevel: 'verbose' // 'error', 'warn', 'info', 'verbose', 'debug'
 });
 ```
 
