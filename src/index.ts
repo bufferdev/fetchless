@@ -11,7 +11,10 @@ import { createAdvancedClient } from './advanced';
 import { AxiosRequestConfig } from 'axios';
 
 // Instance par défaut de Fetchless (standard)
-const defaultClient = Fetchless.createClient();
+const defaultClient = Fetchless.createClient({
+  enableTimeTravel: true,
+  enableIntelligencePanel: true
+});
 
 // Instance par défaut de AdvancedFetchless
 const defaultAdvancedClient = createAdvancedClient();
@@ -26,6 +29,11 @@ export const deleteReq = (url: string, config?: AxiosRequestConfig) => defaultCl
 // Exporter les méthodes avancées de l'instance par défaut
 export const prefetch = defaultAdvancedClient.prefetch.bind(defaultAdvancedClient);
 export const abortableGet = defaultAdvancedClient.abortableGet.bind(defaultAdvancedClient);
+
+// Exporter les nouvelles fonctionnalités
+export const freeze = defaultClient.freeze.bind(defaultClient);
+export const unfreeze = defaultClient.unfreeze.bind(defaultClient);
+export const getIntelligence = defaultClient.getIntelligence.bind(defaultClient);
 
 // Export des hooks
 const hooks = {
